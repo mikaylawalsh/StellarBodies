@@ -3,33 +3,48 @@ from torch import nn
 
 class StellarCNN(nn.Module):
     def __init__(self, input_channels: int, num_classes: int):
-        self.num_epoch = 50
+        super(StellarCNN, self).__init__()
+        self.num_epoch = 15
         self.batch_size = 32
         self.num_classes = num_classes
-        self.lr = 0.01
-        self.hidden_size1 = 64
-        self.hidden_size2 = 128
-        self.kernel_size = 3 
+        self.lr = 0.001
+        self.hidden_size1 = 32
+        self.hidden_size2 = 16
+        self.kernel_size = 5
 
         self.loss_fn = nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.Adam(self.lr)
 
-        self.conv1 = torch.nn.Conv2d(in_channels=input_channels, out_channels=self.hidden_size1, kernel_size=self.kernel_size, stride=1)
+        self.conv1 = torch.nn.Conv2d(in_channels=input_channels, out_channels=self.hidden_size1, kernel_size=self.kernel_size, stride=3)
         self.leaky1 = torch.nn.LeakyReLU()
-        self.conv2 = torch.nn.Conv2d(in_channels=self.hidden_size1, out_channels=self.hidden_size2, kernel_size=self.kernel_size, stride=1)
+        # add max pooling
+        self.max_pool1 = torch.nn.MaxPool2d(3)
+        self.conv2 = torch.nn.Conv2d(in_channels=self.hidden_size1, out_channels=self.hidden_size2, kernel_size=self.kernel_size, stride=3)
         self.leaky2 = torch.nn.LeakyReLU()
+        self.max_pool2 = torch.nn.MaxPool2d(3)
         self.flat = torch.nn.Flatten()
-        self.dense1 = torch.nn.Linear(in_features=self.hidden_size2, out_features=self.num_classes)
+        self.dense1 = torch.nn.Linear(in_features=960, out_features=520)
+        self.leaky3 = torch.nn.LeakyReLU()
+        self.dense2 = torch.nn.Linear(in_features=520, out_features=128)
+        self.leaky4 = torch.nn.LeakyReLU()
+        self.dense3 = torch.nn.Linear(in_features=128, out_features=self.num_classes)
+        # self.dense1 = torch.nn.Linear(in_features=3291520, out_features=self.num_classes)
         self.softmax = torch.nn.Softmax()
     
     def forward(self, X: torch.Tensor) -> torch.Tensor:
+        X = X.type(torch.float32)
         out_conv1 = self.conv1(X)
         out_leaky1 = self.leaky1(out_conv1)
-        out_conv2 = self.conv2(out_leaky1)
+        out_max = self.max_pool1(out_leaky1)
+        out_conv2 = self.conv2(out_max)
         out_leaky2 = self.leaky2(out_conv2)
-        out_flat = self.flat(out_leaky2)
+        out_max2 = self.max_pool2(out_leaky2)
+        out_flat = self.flat(out_max2)
         out_dense1 = self.dense1(out_flat)
-        logits = self.softmax(out_dense1)
+        out_leaky3 = self.leaky3(out_dense1)
+        out_dense2 = self.dense2(out_leaky3)
+        out_leaky4 = self.leaky4(out_dense2)
+        out_dense3 = self.dense3(out_leaky4)
+        logits = self.softmax(out_dense3)
         
         return logits
 
@@ -39,6 +54,7 @@ class StellarCNN(nn.Module):
         return num_correct/Y.shape[0]
 
 def train(model: nn.Module, X: torch.Tensor, Y: torch.Tensor):
+    optimizer = torch.optim.Adam(model.parameters(), model.lr)
     model.train()
     for e in range(model.num_epoch):
         epoch_loss = 0
@@ -49,15 +65,17 @@ def train(model: nn.Module, X: torch.Tensor, Y: torch.Tensor):
             batchY = Y[b0:b1]
 
             logits = model(batchX)
-            model.optimizer.zero_grad()
+            optimizer.zero_grad()
+            # logits = logits.type(torch.LongTensor)
+            batchY = batchY.type(torch.long)
             loss = model.loss_fn(logits, batchY)
             loss.backward()
-            model.optimizer.step()
+            optimizer.step()
             acc = model.accuracy(logits, batchY)
             epoch_loss += loss.item()
-            epoch_acc += acc
+            epoch_acc += acc.item()
         
-        print("Epoch: ", e, "\t", "Loss: ", epoch_loss/model.batch_size, "\t", "Acc: ", epoch_acc/model.batch_size)
+        print("Epoch: ", e, "Loss: ", epoch_loss/(X.shape[0]/model.batch_size), "\t", "Acc: ", epoch_acc/(X.shape[0]/model.batch_size))
         
 
 def test(model: nn.Module, X: torch.Tensor, Y: torch.Tensor):
@@ -72,10 +90,11 @@ def test(model: nn.Module, X: torch.Tensor, Y: torch.Tensor):
             batchY = Y[b0:b1]
 
             logits = model(batchX)
+            batchY = batchY.type(torch.long)
             loss = model.loss_fn(logits, batchY)
             acc = model.accuracy(logits, batchY)
             tot_loss += loss.item()
             tot_acc += acc
         
-        print("Test:\t", "Loss: ", tot_loss/model.batch_size, "\t", "Acc: ", tot_acc/model.batch_size)
+        print("Test:\t", "Loss: ", tot_loss/(X.shape[0]/model.batch_size), "\t", "Acc: ", tot_acc/(X.shape[0]/model.batch_size))
 
