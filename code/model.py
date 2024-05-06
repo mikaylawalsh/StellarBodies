@@ -4,13 +4,13 @@ from torch import nn
 class StellarCNN(nn.Module):
     def __init__(self, input_channels: int, num_classes: int):
         super(StellarCNN, self).__init__()
-        self.num_epoch = 15
+        self.num_epoch = 10
         self.batch_size = 32
         self.num_classes = num_classes
-        self.lr = 0.001
+        self.lr = 0.0001
         self.hidden_size1 = 32
         self.hidden_size2 = 16
-        self.kernel_size = 5
+        self.kernel_size = 9
 
         self.loss_fn = nn.CrossEntropyLoss()
 
@@ -22,7 +22,7 @@ class StellarCNN(nn.Module):
         self.leaky2 = torch.nn.LeakyReLU()
         self.max_pool2 = torch.nn.MaxPool2d(3)
         self.flat = torch.nn.Flatten()
-        self.dense1 = torch.nn.Linear(in_features=960, out_features=520)
+        self.dense1 = torch.nn.Linear(in_features=864, out_features=520)
         self.leaky3 = torch.nn.LeakyReLU()
         self.dense2 = torch.nn.Linear(in_features=520, out_features=128)
         self.leaky4 = torch.nn.LeakyReLU()

@@ -21,5 +21,7 @@ def main():
     train(model, X[:split], Y[:split])
     test(model, X[split:], Y[split:])
 
+    torch.save(model, '../model')
+
 if __name__ == "__main__":
     main()
