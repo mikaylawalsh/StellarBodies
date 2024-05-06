@@ -20,7 +20,7 @@ class CameraConnection():
         results = self.model(frame_tens)
         labels = results.xyxyn[0][:, -1].numpy()
         coordinates = results.xyxyn[0][:, :-1].numpy()
-        return labels, coordinates
+        return labels, coordinates 
 
     def show_boxes(self, results, frame): 
         labels, cords = results
@@ -64,11 +64,11 @@ class CameraConnection():
 
         frame_count = 0
         fps = 0
-        tfc = int(player.get(cv2.CAP_PROP_FRAME_COUNT))
+        tfc = int(self.stream.get(cv2.CAP_PROP_FRAME_COUNT))
         tfcc = 0
 
         # first frame
-        ret, frame = player.read() 
+        ret, frame = self.stream.read() 
 
         while ret: 
             frame_count += 1
@@ -81,7 +81,7 @@ class CameraConnection():
             # print(f"Frames Per Second : {fps}")
             out.write(frame) # write the frame onto the output
 
-            ret, frame = player.read() # read next frame
+            ret, frame = self.stream.read() # read next frame
 
 if __name__ == "__main__":
     camera_input = sys.argv[1]
