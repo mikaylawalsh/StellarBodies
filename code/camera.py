@@ -28,19 +28,21 @@ class CameraConnection():
         # add in downsampling (3 times) before passing in 
         frame_tens = self.downsample(frame_tens)
         results = self.model(frame_tens)
-        pred = torch.argmax(results, 1)
-        # find label from pred using dict 
-        labels_dict = {0: "aquila",
-                       1: "canismajor",
-                       2: "cassiopeia",
-                       3: "gemini",
-                       4: "lyra",
-                       5: "orion",
-                       6: "pegasus",
-                       7: "taurus",
-                       8: "ursamajor",
-                       9: "ursaminor"}
-        label = labels_dict[pred]
+        label = None
+        if torch.max(results) >= 0.5:
+            pred = torch.argmax(results, 1)
+            # find label from pred using dict 
+            labels_dict = {0: "aquila",
+                        1: "canismajor",
+                        2: "cassiopeia",
+                        3: "gemini",
+                        4: "lyra",
+                        5: "orion",
+                        6: "pegasus",
+                        7: "taurus",
+                        8: "ursamajor",
+                        9: "ursaminor"}
+            label = labels_dict[pred]
         # labels = results.xyxyn[0][:, -1].numpy()
         # coordinates = results.xyxyn[0][:, :-1].numpy()
         return label
@@ -97,8 +99,10 @@ class CameraConnection():
             frame_count += 1
 
             start_time = time.time() 
-            results = self.score_frame(frame) # score frame
-            frame = self.plot_boxes(results, frame) # plot the box
+            label = self.score_frame(frame) # score frame
+            if label:
+                print(label) # make this print on image 
+            # frame = self.plot_boxes(results, frame) # plot the box
             end_time = time.time()
             fps = 1/np.round(end_time - start_time, 3) # measure the FPS
             # print(f"Frames Per Second : {fps}")
