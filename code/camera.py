@@ -6,7 +6,7 @@ import torch
 
 class CameraConnection(): 
     def __init__(self, camera_input: int, out_file: str): 
-        # super(CameraConnection, self).__init__()
+        super(CameraConnection, self).__init__()
         print("here")
         self.stream = cv2.VideoCapture(camera_input)
         self.model = torch.empty
@@ -83,7 +83,7 @@ class CameraConnection():
 
             ret, frame = player.read() # read next frame
 
-if __name__ == "__camera__":
+if __name__ == "__main__":
     camera_input = sys.argv[1]
     output_file = sys.argv[2]
     camera = CameraConnection(camera_input, output_file)
