@@ -9,7 +9,8 @@ class CameraConnection():
         super(CameraConnection, self).__init__()
         print("here")
         self.stream = cv2.VideoCapture(camera_input)
-        self.model = torch.empty
+        self.model = torch.load('best_model')
+        self.model.eval()
         self.out_file = out_file
         self.device = 'cpu'
 
