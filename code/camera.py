@@ -14,14 +14,32 @@ class CameraConnection():
         self.out_file = out_file
         self.device = 'cpu'
 
+    def downsample(picture):
+        down = torch.nn.Sequential(
+            torch.nn.MaxPool2d(2, stride=2),
+            torch.nn.MaxPool2d(2, stride=2),
+            torch.nn.MaxPool2d(2, stride=2),
+        )
+        return down(picture)
+
     def score_frame(self, frame):
         self.model.to(self.device)
         frame_tens = [torch.tensor(frame)] # need list wrapper? 
         # add in downsampling (3 times) before passing in 
+        frame_tens = self.downsample(frame_tens)
         results = self.model(frame_tens)
         pred = torch.argmax(results, 1)
         # find label from pred using dict 
-        labels_dict = {}
+        labels_dict = {0: "aquila",
+                       1: "canismajor",
+                       2: "cassiopeia",
+                       3: "gemini",
+                       4: "lyra",
+                       5: "orion",
+                       6: "pegasus",
+                       7: "taurus",
+                       8: "ursamajor",
+                       9: "ursaminor"}
         label = labels_dict[pred]
         # labels = results.xyxyn[0][:, -1].numpy()
         # coordinates = results.xyxyn[0][:, :-1].numpy()
