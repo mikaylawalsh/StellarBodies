@@ -14,13 +14,18 @@ class CameraConnection():
         self.out_file = out_file
         self.device = 'cpu'
 
-    def score_frame(self, frame): 
+    def score_frame(self, frame):
         self.model.to(self.device)
-        frame_tens = [torch.tensor(frame)]
+        frame_tens = [torch.tensor(frame)] # need list wrapper? 
+        # add in downsampling (3 times) before passing in 
         results = self.model(frame_tens)
-        labels = results.xyxyn[0][:, -1].numpy()
-        coordinates = results.xyxyn[0][:, :-1].numpy()
-        return labels, coordinates 
+        pred = torch.argmax(results, 1)
+        # find label from pred using dict 
+        labels_dict = {}
+        label = labels_dict[pred]
+        # labels = results.xyxyn[0][:, -1].numpy()
+        # coordinates = results.xyxyn[0][:, :-1].numpy()
+        return label
 
     def show_boxes(self, results, frame): 
         labels, cords = results
