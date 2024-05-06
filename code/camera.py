@@ -46,36 +46,6 @@ class CameraConnection():
         # labels = results.xyxyn[0][:, -1].numpy()
         # coordinates = results.xyxyn[0][:, :-1].numpy()
         return label
-
-    def show_boxes(self, results, frame): 
-        labels, cords = results
-        n_labels = len(labels)
-        x_shape, y_shape = frame.shape[1], frame.shape[0]
-        classes = self.model.names 
-
-        for i in range(n_labels):
-            row = cords[i]
-
-            # if score is less than a threshold we avoid making a prediction
-            if row[4] < 0.2: 
-                continue
-
-            x1 = int(row[0]*x_shape)
-            y1 = int(row[1]*y_shape)
-            x2 = int(row[2]*x_shape)
-            y2 = int(row[3]*y_shape)
-            box_color = (0, 255, 0) # color of the box, currently lime green
-
-            label_font = cv2.FONT_HERSHEY_SIMPLEX # default font
-
-            # plot box
-            cv2.rectangle(frame, (x1, y1), (x2, y2), box_color, 2) 
-            
-            # put text on box
-            cv2.putText(frame, classes[labels[i]],(x1, y1), label_font, \
-                        0.9, box_color, 2) 
-            
-        return frame
     
     def run_camera(self):
         # make sure that it is there 
