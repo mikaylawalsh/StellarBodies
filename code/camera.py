@@ -53,9 +53,8 @@ class CameraConnection():
         return frame
     
     def run_camera(self):
-        # get video stream and make sure that it is there 
-        player = self.get_video_stream() 
-        assert player.isOpened() 
+        # make sure that it is there 
+        assert self.stream.isOpened() 
 
         x_shape = int(self.stream.get(cv2.CAP_PROP_FRAME_WIDTH))
         y_shape = int(self.stream.get(cv2.CAP_PROP_FRAME_HEIGHT))
