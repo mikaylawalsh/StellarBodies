@@ -98,13 +98,14 @@ class CameraConnection():
         while ret: 
             frame_count += 1
 
-            start_time = time.time() 
+            # start_time = time.time() 
             label = self.score_frame(frame) # score frame
             if label:
-                print(label) # make this print on image 
+                img = cv2.putText(frame, label, (5, 5), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2) 
+                cv2.imShow('Constellation Viewer', img)
             # frame = self.plot_boxes(results, frame) # plot the box
-            end_time = time.time()
-            fps = 1/np.round(end_time - start_time, 3) # measure the FPS
+            # end_time = time.time()
+            # fps = 1/np.round(end_time - start_time, 3) # measure the FPS
             # print(f"Frames Per Second : {fps}")
             out.write(frame) # write the frame onto the output
 
