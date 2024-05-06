@@ -1,12 +1,13 @@
 import sys
 import time
 import cv2
-from torch import hub
 import numpy as np
+import torch
 
 class CameraConnection(): 
     def __init__(self, camera_input: int, out_file: str): 
         # super(CameraConnection, self).__init__()
+        print("here")
         self.stream = cv2.VideoCapture(camera_input)
         self.model = torch.empty
         self.out_file = out_file
@@ -29,7 +30,7 @@ class CameraConnection():
         for i in range(n_labels):
             row = cords[i]
 
-            # If score is less than 0.2 we avoid making a prediction.
+            # if score is less than a threshold we avoid making a prediction
             if row[4] < 0.2: 
                 continue
 
@@ -50,7 +51,7 @@ class CameraConnection():
             
         return frame
     
-    def __call__(self):
+    def run_camera(self):
         # get video stream and make sure that it is there 
         player = self.get_video_stream() 
         assert player.isOpened() 
@@ -72,17 +73,18 @@ class CameraConnection():
         while ret: 
             frame_count += 1
 
-            start_time = time() 
+            start_time = time.time() 
             results = self.score_frame(frame) # score frame
             frame = self.plot_boxes(results, frame) # plot the box
-            end_time = time()
+            end_time = time.time()
             fps = 1/np.round(end_time - start_time, 3) # measure the FPS
             # print(f"Frames Per Second : {fps}")
             out.write(frame) # write the frame onto the output
 
             ret, frame = player.read() # read next frame
 
-camera_input = sys.argv[1]
-output_file = sys.argv[2]
-camera = CameraConnection(camera_input, output_file)
-camera()
+if __name__ == "__camera__":
+    camera_input = sys.argv[1]
+    output_file = sys.argv[2]
+    camera = CameraConnection(camera_input, output_file)
+    camera.run_camera()
