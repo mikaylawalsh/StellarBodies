@@ -28,7 +28,7 @@ def main():
     train(model, X[:split], Y[:split])
     test(model, X[split:], Y[split:])
 
-    torch.save(model, '../model')
+    torch.save(model.state_dict(), '../model_state')
 
 if __name__ == "__main__":
     main()
