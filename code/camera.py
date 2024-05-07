@@ -10,7 +10,8 @@ class CameraConnection():
     def __init__(self): 
         super(CameraConnection, self).__init__()
         self.stream = cv2.VideoCapture(0)
-        self.model = torch.load('../extra_model')
+        self.model = StellarCNN(3, 11)
+        self.model.load_state_dict(torch.load('../model_state'))
         self.model.eval()
 
     # def downsample(picture):
