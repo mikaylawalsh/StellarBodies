@@ -9,8 +9,8 @@ class CameraConnection():
         super(CameraConnection, self).__init__()
         print("here")
         self.stream = cv2.VideoCapture(camera_input)
-        self.model = torch.load('best_model')
-        self.model.eval()
+        # self.model = torch.load('../best_model')
+        # self.model.eval()
         self.out_file = out_file
         self.device = 'cpu'
 
@@ -65,14 +65,15 @@ class CameraConnection():
         # first frame
         ret, frame = self.stream.read() 
 
+
         while ret: 
             frame_count += 1
 
             # start_time = time.time() 
-            label = self.score_frame(frame) # score frame
-            if label:
-                img = cv2.putText(frame, label, (5, 5), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2) 
-                cv2.imShow('Constellation Viewer', img)
+            # label = self.score_frame(frame) # score frame
+            # if label:
+            #     img = cv2.putText(frame, label, (5, 5), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2) 
+            cv2.imShow('Constellation Viewer', frame)
             # frame = self.plot_boxes(results, frame) # plot the box
             # end_time = time.time()
             # fps = 1/np.round(end_time - start_time, 3) # measure the FPS
