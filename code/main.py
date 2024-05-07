@@ -4,9 +4,16 @@ from model import StellarCNN, train, test
 
 def main():
     
-    X = torch.load("data/images.pt")
-    Y = torch.load("data/labels.pt")
-    Y = torch.squeeze(Y)
+    X1 = torch.load("data/images.pt")
+    Y1 = torch.load("data/labels.pt")
+    Y1 = torch.squeeze(Y1)
+
+    X2 = torch.load("data/images10.pt")
+    Y2 = torch.load("data/labels10.pt")
+    Y2 = torch.squeeze(Y2)
+
+    X = torch.cat((X1, X2), 0)
+    Y = torch.cat((Y1, Y2), 0)
 
     indices = torch.randperm(X.shape[0])
     X = X[indices]

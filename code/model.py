@@ -4,7 +4,7 @@ from torch import nn
 class StellarCNN(nn.Module):
     def __init__(self, input_channels: int, num_classes: int):
         super(StellarCNN, self).__init__()
-        self.num_epoch = 10
+        self.num_epoch = 15
         self.batch_size = 32
         self.num_classes = num_classes
         self.lr = 0.0001
