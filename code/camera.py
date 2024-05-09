@@ -10,8 +10,8 @@ class CameraConnection():
     def __init__(self): 
         super(CameraConnection, self).__init__()
         self.stream = cv2.VideoCapture(0)
-        self.model = StellarCNN(3, 11)
-        self.model.load_state_dict(torch.load('../model_state'))
+        self.model = StellarCNN(3, 10)
+        self.model.load_state_dict(torch.load('../model_state2.pt'))
         self.model.eval()
 
     # def downsample(picture):
@@ -23,14 +23,17 @@ class CameraConnection():
     #     return down(picture)
 
     def score_frame(self, frame):
-        self.model.to(self.device)
-        frame_tens = [torch.tensor(frame)] # need list wrapper? 
+        # self.model.to(self.device)
+
+        frame_tens = torch.tensor(frame) # need list wrapper? 
+        frame_tens = torch.permute(frame_tens, (2,0,1))
         # add in downsampling (3 times) before passing in 
         # frame_tens = self.downsample(frame_tens)
-        frame_tens = frame_tens[..., 100:1180]
+        frame_tens = frame_tens[None,:,:,100:1180]
         frame_tens = torchvision.transforms.Resize(size=(560,840))(frame_tens)
         results = self.model(frame_tens)
         label = None
+        print(torch.max(results))
         if torch.max(results) >= 0.5:
             pred = torch.argmax(results, 1)
             # find label from pred using dict 
@@ -45,7 +48,7 @@ class CameraConnection():
                         8: "ursamajor",
                         9: "ursaminor",
                         10: "leo"}
-            label = labels_dict[pred]
+            label = labels_dict[pred.item()]
         return label
     
     def run_camera(self):
@@ -70,12 +73,13 @@ class CameraConnection():
         while ret: 
             label = self.score_frame(frame) # score frame
             if label:
-                img = cv2.putText(frame, label, (5, 5), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2)
-                cv2.imShow('Constellation Viewer', img)
+                img = cv2.putText(frame, label, (100, 150), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 0, 0), 2)
+                cv2.imshow('Constellation Viewer', img)
             else :
-                cv2.imShow('Constellation Viewer', frame)
+                cv2.imshow('Constellation Viewer', frame)
 
-            cv2.waitKey()
+            if cv2.waitKey(1) == ord('c'):
+                break
             ret, frame = self.stream.read() # read next frame
 
 if __name__ == "__main__":

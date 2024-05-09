@@ -3,3 +3,5 @@ data_imgs/
 data_imgs/images.pt
 data_imgs/labels.pt
 model_state/
+raw_data_2/
+data_2/
