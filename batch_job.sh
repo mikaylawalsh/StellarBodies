@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --time=06:00:00
+#SBATCH --time=010:00:00
 # Request use of 1 core and 8GB of memory on 1 node
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1
-##SBATCH --mem-per-cpu=40G
+##SBATCH --mem-per-cpu=60G
 
 # Submit request to gpu partition and request 1 gpu
 #SBATCH --partition=gpu
